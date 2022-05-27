@@ -1,5 +1,6 @@
 package com.mainpackage;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -10,11 +11,17 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.TextHttpResponseHandler;
 
@@ -30,7 +37,7 @@ import cz.msebera.android.httpclient.entity.StringEntity;
 public class RegisterAccount extends AppCompatActivity {
     EditText username, password, repeatPassword;
     TextView onUsername, onPassword, onRepeatPassword, hasAccount, failedRegister;
-
+    private FirebaseAuth mAuth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +50,8 @@ public class RegisterAccount extends AppCompatActivity {
         onUsername = (TextView) findViewById(R.id.registerActivity_login_onEditTextUser);
         hasAccount = (TextView) findViewById(R.id.registerActivity_hasAccount_text);
         failedRegister = (TextView) findViewById(R.id.RegisterAccount_registerFail_text);
+
+        mAuth = FirebaseAuth.getInstance();
 
         hasAccount.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,14 +124,66 @@ public class RegisterAccount extends AppCompatActivity {
 
     public void registerActivity_register_button(View view) throws IOException {
         if(repeatPassword.getText().toString().equals(password.getText().toString())) {
-            postRequestRegisterUser(username.getText().toString(), password.getText().toString());
+            registerUser();
             failedRegister.setText("");
 
         }else{
             failedRegister.setText("Gesli se ne ujemata!");
         }
     }
+    public void registerUser(){
+        String email = username.getText().toString().trim();
+        String getPassword = password.getText().toString().trim();
+        Toast.makeText(RegisterAccount.this,getPassword,Toast.LENGTH_LONG).show();
+        if(email.isEmpty()){
+            username.setError("Email je potreben");
+            username.requestFocus();
+            return;
+        }
+        if(getPassword.isEmpty()){
+            password.setError("Geslo je obvezno");
+            password.requestFocus();
+            return;
+        }
+        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+            username.setError("Prosim podajte veljaven email");
+            username.requestFocus();
+            return;
+        }
+        if(getPassword.length() <6){
+            password.setError("Geslo mora biti daljše od 6 znakov");
+            password.requestFocus();
+            return;
+        }
+        // addanje v firebase
+        mAuth.createUserWithEmailAndPassword(email,getPassword)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful()){
+                            User user = new User(email);
+                            FirebaseDatabase.getInstance().getReference("Users")
+                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                    .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if(task.isSuccessful()){
+                                                Toast.makeText(RegisterAccount.this,"Registracija uspešna",Toast.LENGTH_LONG).show();
+                                                Intent i = new Intent(getBaseContext(), MainActivity.class);
+                                                finish();
+                                                startActivity(i);
+                                            }else{
+                                                Toast.makeText(RegisterAccount.this,"Registracija Neuspešna, poskusi znova",Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    });
+                        }else{
+                            Toast.makeText(RegisterAccount.this,"Registracija Neuspešna",Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
 
+    }
     public void postRequestRegisterUser(String username, String password) {
         AsyncHttpClient client = new AsyncHttpClient();
         JSONObject jsonParams = new JSONObject();

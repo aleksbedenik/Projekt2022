@@ -2,7 +2,7 @@ package com.example.userinformation;
 
 import java.util.ArrayList;
 
-import javax.jws.soap.SOAPBinding;
+//import javax.jws.soap.SOAPBinding;
 
 public class UserActivitiesArray {
     private ArrayList<UserActivities> arrayList;

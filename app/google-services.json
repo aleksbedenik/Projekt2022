@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "443710888073",
+    "project_id": "auth-d6ca2",
+    "storage_bucket": "auth-d6ca2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:443710888073:android:be2080605c6644ef558e58",
+        "android_client_info": {
+          "package_name": "com.mainpackage"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "443710888073-73t00bbogl8ntprtgpbulruegfcrqtrp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvcEmxXH8V8s_7vR-pDHWe-HoOOZsna8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "443710888073-73t00bbogl8ntprtgpbulruegfcrqtrp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

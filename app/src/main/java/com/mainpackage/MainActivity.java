@@ -18,11 +18,16 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.TextHttpResponseHandler;
 
@@ -48,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     TextView onUsername, onPassword;
     TextView textForgotPassword,textRegisterAccount;
     SharedPreferences sp;
+    private FirebaseAuth mAuth;
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
@@ -60,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
         onPassword = (TextView) findViewById(R.id.registerActivity_login_onEditTextPassw);
         onUsername = (TextView) findViewById(R.id.registerActivity_login_onEditTextUser);
         textRegisterAccount = (TextView) findViewById(R.id.registerActivity_hasAccount_text);
+        mAuth = FirebaseAuth.getInstance();
+
         textRegisterAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -234,7 +242,46 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }*/
+private void userLogin(){
+    String email = username.getText().toString().trim();
+    String getPassword = password.getText().toString().trim();
 
+    if(email.isEmpty()){
+        username.setError("Email manjka");
+        username.requestFocus();
+        return;
+    }
+    if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+        username.setError("Prosim podajte veljaven email");
+        username.requestFocus();
+        return;
+    }
+    if(getPassword.isEmpty()){
+        password.setError("Geslo manjka");
+        password.requestFocus();
+        return;
+    }
+    if(getPassword.length() <6){
+        password.setError("Geslo mora biti daljše od 6 znakov");
+        password.requestFocus();
+        return;
+    }
+    mAuth.signInWithEmailAndPassword(email,getPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        @Override
+        public void onComplete(@NonNull Task<AuthResult> task) {
+            if(task.isSuccessful()){
+                //ce je login uspesen redirect
+                Intent i = new Intent(getBaseContext(), BottomNavigationActivity.class);
+                finish();
+                startActivity(i);
+            }else{
+                Toast.makeText(MainActivity.this, "Prijava neuspešna, preveri podatke", Toast.LENGTH_LONG).show();
+
+            }
+        }
+    });
+
+}
 
     public void MainActivity_login_button(View view) {
         if(username.getText().toString().equals("demo") && password.getText().toString().equals("demo")){
@@ -243,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
             finish();
             startActivity(i);
         }else{
-            postRequestLoginUser(username.getText().toString(),password.getText().toString());
+            userLogin();
         }
 
 
