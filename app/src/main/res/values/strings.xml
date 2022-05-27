@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Projekt Ptuj</string>
+    <string name="main_activity_login_text"><b>Prijavi se v Račun</b></string>
+    <string name="main_activity_login_button">Prijavi se</string>
+    <string name="main_activity_register_account_text"><u>Registriraj se</u></string>
+
+    <string name="register_activity_register_button">Registriraj se</string>
+    <string name="register_activity_register_text"><b>Ustvari nov račun</b></string>
+    <string name="register_activity_login_text"><u>Že imaš račun?</u></string>
+    <string name="title_activity_main_dashboard">MainActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="name_surname"><b>Ime in Priimek</b></string>
+    <string name="my_profile"><b>Moj Profil</b></string>
+    <string name="height"><b>Višina</b></string>
+    <string name="weight"><b>Teža</b></string>
+    <string name="gender"><b>Spol</b></string>
+    <string name="email"><b>Email</b></string>
+
+</resources>

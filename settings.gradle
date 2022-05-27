@@ -1,0 +1,4 @@
+include ':Userinfo'
+include ':User'
+include ':app'
+rootProject.name = "Projekt Ptuj"
