@@ -17,7 +17,9 @@
         android:usesCleartextTraffic="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjektPtuj">
-        <activity android:name=".NewActivityActivity"></activity>
+        <activity android:name=".NewActivityActivity"
+            android:screenOrientation="portrait"
+            ></activity>
         <activity android:name=".BottomNavigationActivity" />
         <activity
             android:name=".RegisterAccount"

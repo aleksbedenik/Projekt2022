@@ -237,7 +237,15 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void MainActivity_login_button(View view) {
-        postRequestLoginUser(username.getText().toString(),password.getText().toString());
+        if(username.getText().toString().equals("demo") && password.getText().toString().equals("demo")){
+            Toast.makeText(MainActivity.this, "Demo account loaded", Toast.LENGTH_LONG).show();
+            Intent i = new Intent(getBaseContext(), NewActivityActivity.class);
+            finish();
+            startActivity(i);
+        }else{
+            postRequestLoginUser(username.getText().toString(),password.getText().toString());
+        }
+
 
     }
 }
