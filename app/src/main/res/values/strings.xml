@@ -6,6 +6,8 @@
 
     <string name="register_activity_register_button">Registriraj se</string>
     <string name="register_activity_register_text"><b>Ustvari nov račun</b></string>
+    <string name="forgot_activity_send_email"><b>Resitiraj geslo</b></string>
+
     <string name="register_activity_login_text"><u>Že imaš račun?</u></string>
     <string name="title_activity_main_dashboard">MainActivity</string>
     <string name="title_home">Home</string>

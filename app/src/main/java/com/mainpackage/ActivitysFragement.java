@@ -57,10 +57,10 @@ public class ActivitysFragement extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         sp = getActivity().getSharedPreferences("com.mainpackage_preferences", Context.MODE_PRIVATE);
-        postRequestNewActivity();
+        //postRequestNewActivity();
         app = (ApplicationMy) getActivity().getApplication();
 
-        getRequestUserActivities(sp.getString("USER ID","25"));
+        //getRequestUserActivities(sp.getString("USER ID","25"));
         //imgImport = (ImageView) getView().findViewById(R.id.fragementActivity_import_img);
         imgAddActivity = (ImageView) getView().findViewById(R.id.fragementActivity_add_img);
         imgAddActivity.setOnClickListener(new View.OnClickListener() {

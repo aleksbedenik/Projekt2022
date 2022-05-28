@@ -134,7 +134,6 @@ public class RegisterAccount extends AppCompatActivity {
     public void registerUser(){
         String email = username.getText().toString().trim();
         String getPassword = password.getText().toString().trim();
-        Toast.makeText(RegisterAccount.this,getPassword,Toast.LENGTH_LONG).show();
         if(email.isEmpty()){
             username.setError("Email je potreben");
             username.requestFocus();

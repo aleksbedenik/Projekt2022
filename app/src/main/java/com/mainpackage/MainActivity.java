@@ -28,6 +28,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.TextHttpResponseHandler;
 
@@ -66,12 +67,21 @@ public class MainActivity extends AppCompatActivity {
         onPassword = (TextView) findViewById(R.id.registerActivity_login_onEditTextPassw);
         onUsername = (TextView) findViewById(R.id.registerActivity_login_onEditTextUser);
         textRegisterAccount = (TextView) findViewById(R.id.registerActivity_hasAccount_text);
+        textForgotPassword = (TextView) findViewById(R.id.mainActivity_login_textForgotPassword);
         mAuth = FirebaseAuth.getInstance();
-
+        textForgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getBaseContext(),ForgotPasswordActivity.class);
+                finish();
+                startActivity(i);
+            }
+        });
         textRegisterAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getBaseContext(), RegisterAccount.class);
+                finish();
                 startActivity(i);
             }
         });
@@ -271,9 +281,18 @@ private void userLogin(){
         public void onComplete(@NonNull Task<AuthResult> task) {
             if(task.isSuccessful()){
                 //ce je login uspesen redirect
-                Intent i = new Intent(getBaseContext(), BottomNavigationActivity.class);
-                finish();
-                startActivity(i);
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+                if(user.isEmailVerified()){
+                    Intent i = new Intent(getBaseContext(), BottomNavigationActivity.class);
+                    finish();
+                    startActivity(i);
+                }else{
+                    //pošlje verification email na email racuna
+                    user.sendEmailVerification();
+                    Toast.makeText(MainActivity.this,"Email še ni potrjen, preveri email za potrditev",Toast.LENGTH_LONG).show();
+                }
+
             }else{
                 Toast.makeText(MainActivity.this, "Prijava neuspešna, preveri podatke", Toast.LENGTH_LONG).show();
 

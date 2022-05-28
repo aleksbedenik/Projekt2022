@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.userinformation.UserInfo;
 import com.example.userinformation.UserInfoArray;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.loopj.android.http.AsyncHttpClient;
@@ -49,9 +50,9 @@ public class MyProfileFragement extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //imgImport = (ImageView) getView().findViewById(R.id.fragementActivity_import_img);
-        sp = getActivity().getSharedPreferences("com.mainpackage_preferences", Context.MODE_PRIVATE);
+       // sp = getActivity().getSharedPreferences("com.mainpackage_preferences", Context.MODE_PRIVATE);
 
-        getRequestUserActivities(sp.getString("USER ID","25"));
+       // getRequestUserActivities(sp.getString("USER ID","25"));
         nameSurname = getView().findViewById(R.id.id_ime);
         weight = getView().findViewById(R.id.id_teza);
         height = getView().findViewById(R.id.id_visina);
@@ -61,10 +62,11 @@ public class MyProfileFragement extends Fragment {
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sp = getActivity().getSharedPreferences("com.mainpackage_preferences", Context.MODE_PRIVATE);
-                sp.edit().remove("USER ID").commit();
+                //sp = getActivity().getSharedPreferences("com.mainpackage_preferences", Context.MODE_PRIVATE);
+               //sp.edit().remove("USER ID").commit();
                // String id = sp.getString("USER ID", "error");
                // Log.i("SharedPrefTest", id);
+                FirebaseAuth.getInstance().signOut();
                 Intent i = new Intent(getActivity(), MainActivity.class);
                 getActivity().finish();
                 startActivity(i);
