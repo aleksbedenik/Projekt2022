@@ -1,10 +1,18 @@
 package com.mainpackage;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.FileUtils;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.userinformation.UserActivitiesArray;
 import com.example.userinformation.UserInfoArray;
@@ -14,6 +22,10 @@ import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class ApplicationMy extends Application {
     private static final String TAG = ApplicationMy.class.getSimpleName();

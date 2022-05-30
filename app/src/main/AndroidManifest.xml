@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
         android:name=".ApplicationMy"
@@ -23,6 +25,9 @@
             android:name=".NewActivityActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".BottomNavigationActivity" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBlGM2anX1TvBXUXu_l719uNd6PUW7lJ0A" />
         <activity
             android:name=".RegisterAccount"
             android:launchMode="singleInstance" />

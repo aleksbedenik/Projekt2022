@@ -1,8 +1,17 @@
 package com.mainpackage;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -10,10 +19,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -42,11 +53,19 @@ import coil.request.ImageRequest;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
+import static android.content.Context.LOCATION_SERVICE;
+
 public class ActivitysFragement extends Fragment {
-    Gson gson = new Gson();
-    SharedPreferences sp;
     ApplicationMy app;
-    ImageView imgImport,imgAddActivity;
+    TextView temp;
+    String lon, lat;
+    TextView sensX, sensY, sensZ;
+    Sensor sensor;
+    SensorManager sensorManager;
+    float x = 0, y = 0, z = 0;
+
+    private LocationManager locationManager;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -56,171 +75,75 @@ public class ActivitysFragement extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        sp = getActivity().getSharedPreferences("com.mainpackage_preferences", Context.MODE_PRIVATE);
-        //postRequestNewActivity();
         app = (ApplicationMy) getActivity().getApplication();
 
-        //getRequestUserActivities(sp.getString("USER ID","25"));
-        //imgImport = (ImageView) getView().findViewById(R.id.fragementActivity_import_img);
-        imgAddActivity = (ImageView) getView().findViewById(R.id.fragementActivity_add_img);
-        imgAddActivity.setOnClickListener(new View.OnClickListener() {
+        temp = (TextView) getView().findViewById(R.id.tempLatLon);
+
+        sensX = (TextView) getView().findViewById(R.id.sensAccX);
+        sensY = (TextView) getView().findViewById(R.id.sensAccY);
+        sensZ = (TextView) getView().findViewById(R.id.sensAccZ);
+
+        sensorManager = (SensorManager) app.getSystemService(app.getBaseContext().SENSOR_SERVICE);
+
+        if(sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).isEmpty()){
+            Toast.makeText(app.getBaseContext(), "Accelerometer Unavailable", Toast.LENGTH_LONG).show();
+        }else{
+            sensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
+        }
+
+        sensorManager.registerListener(accelerationListener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+
+        //Initialise locationManager
+        locationManager = (LocationManager) app.getSystemService(LOCATION_SERVICE);
+
+        //Check permissions to use location
+        if(ContextCompat.checkSelfPermission(app.getBaseContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(app.getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 44);
+        }
+
+        //Create LocationListener
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 1, new LocationListener() {
             @Override
-            public void onClick(View v) {
-                Intent i = new Intent(getActivity(), NewActivityActivity.class);
-                startActivity(i);
+            public void onLocationChanged(@NonNull Location location) {
+                lon = String.valueOf(location.getLongitude());
+                lat = String.valueOf(location.getLatitude());
+
+                //Toast.makeText(app.getBaseContext(), "Latitude: " + lat + " Longitude: " + lon, Toast.LENGTH_SHORT);
+                temp.setText("Latitude: " + lat + "\n Longitude: " + lon);
+            }
+
+            @Override
+            public void onProviderEnabled(@NonNull String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(@NonNull String provider) {
+
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
             }
         });
 
     }
-    private Gson getGson() {
-        if (gson == null)
-            gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson;
-    }
-    public void getRequestUserActivities(String userId){
-        AsyncHttpClient client = new AsyncHttpClient();
 
-        RequestParams params = new RequestParams();
-        params.put("id",userId);
-        client.get("https://projektptuj.ddns.net/api.php/baza/aktivnost/android", params, new TextHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, String res) {
-                Log.i("Jsonparams",res);
-
-                JSONArray json = null;
-                try {
-                    json = new JSONArray(res);
-                    String text = json.get(0).toString();
-                     for(int i = 0 ; i <json.length();i++) {
-                         JSONObject jsonobject = json.getJSONObject(i);
-
-                         UserActivities userActivities = new UserActivities(
-                                 jsonobject.get("datum").toString(),
-                                 jsonobject.get("ocena_aktivnosti").toString(),
-                                 jsonobject.get("koraki").toString(),
-                                 jsonobject.get("porabljene_kalorije").toString(),
-                                 jsonobject.get("povp_srcni_utrip").toString(),
-                                 jsonobject.get("povp_hitrost").toString(),
-                                 jsonobject.get("razdalja").toString(),
-                                 jsonobject.get("ime").toString(),
-                                 jsonobject.get("username").toString(),
-                                 jsonobject.get("cas").toString()
-                         );
-                         app.userActivitiesArray = new UserActivitiesArray();
-
-                         app.userActivitiesArray.AddToArray(userActivities);
-                         /*
-                         String ime = jsonobject.get("datum").toString();
-                         String priimek = jsonobject.get("ocena_aktivnosti").toString();
-                         String email1 = jsonobject.get("koraki").toString();
-                         String telefon = jsonobject.get("porabljene_kalorije").toString();
-                         String teza = jsonobject.get("povp_srcni_utrip").toString();
-                         String visina = jsonobject.get("povp_hitrost").toString();
-                         String spol = jsonobject.get("razdalja").toString();
-                         String spol3 = jsonobject.get("cas").toString();
-                         String spol1 = jsonobject.get("username").toString();
-                         String spol2 = jsonobject.get("ime").toString();
-
-                         Log.i("Jsonparams", ime);
-                         Log.i("Jsonparams", priimek);
-                         Log.i("Jsonparams", email1);
-                         Log.i("Jsonparams", telefon);
-                         Log.i("Jsonparams", teza);
-                         Log.i("Jsonparams", visina);
-                         */
-                         Log.i("Jsonparams", app.userActivitiesArray.toString());
-
-
-                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                  //  UserActivitiesArray userActivitiesArray = new UserActivitiesArray("aleks");
-                 //   SimpleDateFormat D = new SimpleDateFormat("hh:mm:ss");
-                   // Gson gson = new GsonBuilder().setDateFormat(yyyy-mm-dd,hh:mm:ss).create();
-                 //   userActivitiesArray = gson.fromJson(res, new TypeToken<ArrayList<UserActivities>>() {
-                 //   }.getType());
-                   // Toast.makeText(getActivity(), userActivitiesArray.toString(), Toast.LENGTH_LONG).show();
-
-
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String res, Throwable t) {
-                // Toast.makeText(MainActivity.this,"neuspesna prijava",Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-    public void postRequestNewActivity() {
-        AsyncHttpClient client = new AsyncHttpClient();
-        JSONObject jsonParams = new JSONObject();
-
-        try {
-            jsonParams.put("datum", "2021-6-6 11:15:45");
-        } catch (JSONException e) {
-            e.printStackTrace();
+    private SensorEventListener accelerationListener = new SensorEventListener(){
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int acc){
         }
-        try {
-            jsonParams.put("ocena_aktivnosti", "4");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } try {
-            jsonParams.put("koraki", "45");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } try {
-            jsonParams.put("porabljene_kalorije", "12");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } try {
-            jsonParams.put("povp_srcni_utrip", "0");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } try {
-            jsonParams.put("povp_hitrost", "3");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } try {
-            jsonParams.put("razdalja", "35");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } try {
-            jsonParams.put("cas", "00:00:38");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }try {
-            jsonParams.put("FK_idUser", "28");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }try {
-            jsonParams.put("lat", "46.425799");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }try {
-            jsonParams.put("lon", "15.881354");
-        } catch (JSONException e) {
-            e.printStackTrace();
+        @Override
+        public void onSensorChanged(SensorEvent event){
+            x = event.values[0];
+            y = event.values[1];
+            z = event.values[2];
+
+            sensX.setText("Accelorometer x: " + String.valueOf(x));
+            sensY.setText("Accelerometer y: " + String.valueOf(y));
+            sensZ.setText("Accelerometer z: " + String.valueOf(z));
         }
-        StringEntity entity = null;
-        try {
-            entity = new StringEntity(jsonParams.toString());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        client.post(getActivity(), "https://projektptuj.ddns.net/api.php/baza/aktivnost/android", entity, "application/json", new TextHttpResponseHandler() {
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Toast.makeText(getActivity(), responseString, Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                Toast.makeText(getActivity(), responseString, Toast.LENGTH_LONG).show();
-                Log.i("Jsonparams",responseString);
-
-            }
-        });
-    }
+    };
 }
