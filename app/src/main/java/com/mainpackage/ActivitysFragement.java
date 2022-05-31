@@ -32,6 +32,8 @@ import androidx.fragment.app.FragmentManager;
 import com.example.userinformation.UserActivities;
 import com.example.userinformation.UserActivitiesArray;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -50,6 +52,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 
 import coil.ImageLoader;
 import coil.request.ImageRequest;
@@ -76,6 +79,11 @@ public class ActivitysFragement extends Fragment implements View.OnClickListener
 
     private LocationManager locationManager;
 
+    RoadsList entry;
+    FirebaseDatabase database;
+    DatabaseReference myRef;
+    String uuid;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -91,6 +99,12 @@ public class ActivitysFragement extends Fragment implements View.OnClickListener
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        database = FirebaseDatabase.getInstance("https://auth-d6ca2-default-rtdb.europe-west1.firebasedatabase.app/");
+        myRef = database.getReference("locations");
+
+        entry = new RoadsList();
+
         app = (ApplicationMy) getActivity().getApplication();
 
         temp = (TextView) getView().findViewById(R.id.tempLatLon);
@@ -234,8 +248,13 @@ public class ActivitysFragement extends Fragment implements View.OnClickListener
                     timerStarted = true;
                     start.setText("Končaj sledenje");
 
+                    uuid = UUID.randomUUID().toString();
+
                     app.startLat = lat;
                     app.startLon = lon;
+
+                    entry.setStartLat(lat);
+                    entry.setStartLon(lon);
 
                     startTimer();
                 }else{
@@ -244,8 +263,14 @@ public class ActivitysFragement extends Fragment implements View.OnClickListener
 
                     app.endLat = lat;
                     app.endLon = lon;
+                    entry.setEndLat(lat);
+                    entry.setEndLon(lon);
 
                     app.roadQuality = tempMax;
+                    entry.setRoadQuality(tempMax);
+
+                    myRef.child(uuid).setValue(entry);
+
 
                     timerTask.cancel();
                 }
