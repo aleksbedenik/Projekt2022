@@ -39,9 +39,16 @@ public class ApplicationMy extends Application {
     private File file;
     public int position;
 
+    String startLon, startLat, endLon, endLat;
+    int roadQuality;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        startLon = "default";
+        startLat = "default";
+        endLon = "default";
+        endLat = "default";
     }
 
     public UserActivitiesArray getUserActivitiesArray() {

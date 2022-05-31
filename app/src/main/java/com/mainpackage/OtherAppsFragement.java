@@ -19,6 +19,8 @@ public class OtherAppsFragement extends Fragment implements OnMapReadyCallback {
     private MapView mapV;
     private String bundleKey = "MapViewBundleKey";
 
+    ApplicationMy app;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -28,6 +30,8 @@ public class OtherAppsFragement extends Fragment implements OnMapReadyCallback {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         mapV = (MapView) getView().findViewById(R.id.mapView);
+
+        app = (ApplicationMy) getActivity().getApplication();
 
         Bundle mapViewBundle = null;
         if(savedInstanceState != null){
@@ -72,7 +76,10 @@ public class OtherAppsFragement extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap map) {
-        map.addMarker(new MarkerOptions().position(new LatLng(0,0)).title("Marker"));
+        //map.addMarker(new MarkerOptions().position(new LatLng(0,0)).title("Marker"));
+        if(app.startLat != "default" && app.startLon != "default"){
+            map.addMarker(new MarkerOptions().position(new LatLng(Double.valueOf(app.startLat), Double.valueOf(app.startLon))).title("Road Quality: " + String.valueOf(app.roadQuality)));
+        }
     }
 
     @Override

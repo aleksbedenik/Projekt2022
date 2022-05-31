@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,6 +48,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import coil.ImageLoader;
 import coil.request.ImageRequest;
@@ -55,21 +58,34 @@ import cz.msebera.android.httpclient.entity.StringEntity;
 
 import static android.content.Context.LOCATION_SERVICE;
 
-public class ActivitysFragement extends Fragment {
+public class ActivitysFragement extends Fragment implements View.OnClickListener {
     ApplicationMy app;
     TextView temp;
     String lon, lat;
-    TextView sensX, sensY, sensZ;
+    TextView sensX, sensY, sensZ, timer_tv;
     Sensor sensor;
     SensorManager sensorManager;
     float x = 0, y = 0, z = 0;
+    int tempMax = 0;
+
+    boolean timerStarted = false;
+    Timer timer;
+    TimerTask timerTask;
+    double time;
+    Button start;
 
     private LocationManager locationManager;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragement_activitys, container, false);
+        //return inflater.inflate(R.layout.fragement_activitys, container, false);
+
+        View v = inflater.inflate(R.layout.fragement_activitys, container, false);
+
+        start = (Button) v.findViewById(R.id.startBtn);
+        start.setOnClickListener(this);
+        return v;
     }
 
     @Override
@@ -82,6 +98,10 @@ public class ActivitysFragement extends Fragment {
         sensX = (TextView) getView().findViewById(R.id.sensAccX);
         sensY = (TextView) getView().findViewById(R.id.sensAccY);
         sensZ = (TextView) getView().findViewById(R.id.sensAccZ);
+
+        timer_tv = (TextView) getView().findViewById(R.id.timerTV);
+
+        timer = new Timer();
 
         sensorManager = (SensorManager) app.getSystemService(app.getBaseContext().SENSOR_SERVICE);
 
@@ -109,8 +129,12 @@ public class ActivitysFragement extends Fragment {
                 lon = String.valueOf(location.getLongitude());
                 lat = String.valueOf(location.getLatitude());
 
-                //Toast.makeText(app.getBaseContext(), "Latitude: " + lat + " Longitude: " + lon, Toast.LENGTH_SHORT);
-                temp.setText("Latitude: " + lat + "\n Longitude: " + lon);
+                if (timerStarted) {
+                    temp.setText("Latitude: " + lat + "\n Longitude: " + lon);
+                }else{
+                    temp.setText("Latitude: STOPPED" + "\n Longitude: STOPPED");
+                }
+
             }
 
             @Override
@@ -137,13 +161,95 @@ public class ActivitysFragement extends Fragment {
         }
         @Override
         public void onSensorChanged(SensorEvent event){
-            x = event.values[0];
+            x = event.values[0]; //X probably the best candidate to keep an eye on during road evaluation
+            if(x > tempMax){
+                tempMax = (int) x;
+            }
             y = event.values[1];
             z = event.values[2];
 
-            sensX.setText("Accelorometer x: " + String.valueOf(x));
-            sensY.setText("Accelerometer y: " + String.valueOf(y));
-            sensZ.setText("Accelerometer z: " + String.valueOf(z));
+            if(timerStarted){
+                sensX.setText(String.valueOf(x));
+                sensY.setText(String.valueOf(y));
+                sensZ.setText(String.valueOf(z));
+            }else{
+                sensX.setText("STOPPED");
+                sensY.setText("STOPPED");
+                sensZ.setText("STOPPED");
+            }
+
         }
     };
+
+    private void startTimer(){
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        time++;
+                        timer_tv.setText(getTimerText());
+                    }
+                });
+            }
+        };
+
+        timer.scheduleAtFixedRate(timerTask, 0, 1000);
+
+    }
+
+    private String getTimerText() {
+        int rounded = (int) Math.round(time);
+        int seconds = ((rounded % 86400) % 3600) % 60;
+        int minutes = ((rounded % 86400) % 3600) / 60;
+        int hours = ((rounded % 86400) / 3600) ;
+        return formatTime(seconds,minutes,hours);
+
+    }
+    private String formatTime(int seconds, int minutes, int hours){
+        return String.format("%02d", hours) + " : " + String.format("%02d", minutes) + " : " + String.format("%02d", seconds);
+    }
+
+    /* //Replaced with OnClickListener
+    public void startTracking(View view) {
+        if(timerStarted == false) {
+            timerStarted = true;
+            start.setText("Končaj aktivnost");
+
+            startTimer();
+        }else{
+            timerStarted = false;
+            start.setText("Začni aktivnost");
+            timerTask.cancel();
+
+        }
+    }*/
+
+    @Override
+    public void onClick(View view) {
+        switch(view.getId()){
+            case R.id.startBtn:
+                if(timerStarted == false) {
+                    timerStarted = true;
+                    start.setText("Končaj sledenje");
+
+                    app.startLat = lat;
+                    app.startLon = lon;
+
+                    startTimer();
+                }else{
+                    timerStarted = false;
+                    start.setText("Začni sledenje");
+
+                    app.endLat = lat;
+                    app.endLon = lon;
+
+                    app.roadQuality = tempMax;
+
+                    timerTask.cancel();
+                }
+                break;
+        }
+    }
 }
