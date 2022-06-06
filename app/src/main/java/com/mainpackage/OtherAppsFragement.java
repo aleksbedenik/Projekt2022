@@ -131,6 +131,10 @@ public class OtherAppsFragement extends Fragment implements OnMapReadyCallback {
         if(!entries.isEmpty()){
             for(int i = 0; i < entries.size(); i++){
 
+                if(entries.get(i).getStartLat() == null || entries.get(i).getStartLon() == null || entries.get(i).getEndLat() == null || entries.get(i).getEndLon() == null){
+                    i++;
+                }
+
                 Lat = entries.get(i).getStartLat();
                 Lon = entries.get(i).getStartLon();
                 rq = entries.get(i).getRoadQuality();
