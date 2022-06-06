@@ -307,12 +307,15 @@ public class ActivitysFragement extends Fragment implements View.OnClickListener
                         }
                     }
 
-                    tempMax = (maxX + maxY);
+                    tempMax = maxX;
 
                     app.roadQuality = tempMax;
                     entry.setRoadQuality(tempMax);
 
                     myRef.child(uuid).setValue(entry);
+
+                    Arrays.fill(qualityX, 0);
+                    Arrays.fill(qualityY, 0);
 
 
                     timerTask.cancel();

@@ -4,10 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricPrompt;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -37,6 +39,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.concurrent.Executor;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -55,6 +58,10 @@ public class MainActivity extends AppCompatActivity {
     TextView textForgotPassword,textRegisterAccount;
     SharedPreferences sp;
     private FirebaseAuth mAuth;
+
+    private Executor executor;
+    private BiometricPrompt biometricPrompt;
+    private BiometricPrompt.PromptInfo promptInfo;
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
@@ -91,7 +98,32 @@ public class MainActivity extends AppCompatActivity {
         //pogledam ce je v shared pref ze user id
         checkSharedPrefs();
 
+        executor = ContextCompat.getMainExecutor(this);
+        biometricPrompt = new BiometricPrompt(MainActivity.this, executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+            }
 
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                Intent i = new Intent(getBaseContext(), BottomNavigationActivity.class);
+                finish();
+                startActivity(i);
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+            }
+        });
+
+        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Biometrična avtentifikacija")
+                .setSubtitle("Za nadaljevanje potrdite identiteto s prstnim odtisom ali obrazom")
+                .setNegativeButtonText("Preklic")
+                .build();
 
 
     }
@@ -284,9 +316,10 @@ private void userLogin(){
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
                 if(user.isEmailVerified()){
-                    Intent i = new Intent(getBaseContext(), BottomNavigationActivity.class);
-                    finish();
-                    startActivity(i);
+                    //Intent i = new Intent(getBaseContext(), BottomNavigationActivity.class);
+                    //finish();
+                    biometricPrompt.authenticate(promptInfo); //------------------------------//
+                    //startActivity(i);
                 }else{
                     //pošlje verification email na email racuna
                     user.sendEmailVerification();
