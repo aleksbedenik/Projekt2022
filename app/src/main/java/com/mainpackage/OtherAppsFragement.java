@@ -125,7 +125,7 @@ public class OtherAppsFragement extends Fragment implements OnMapReadyCallback {
         //}
         double latitude, longitude;
 
-        Toast.makeText(getActivity(), "Number of saved roads: " + String.valueOf(entries.size()), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getActivity(), "Number of saved roads: " + String.valueOf(entries.size()), Toast.LENGTH_SHORT).show();
         //debug.setText(String.valueOf(entries.size()));
 
         if(!entries.isEmpty()){
@@ -143,7 +143,7 @@ public class OtherAppsFragement extends Fragment implements OnMapReadyCallback {
                 latitude = Double.valueOf(Lat);
                 longitude = Double.valueOf(Lon);
 
-                map.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title(("Road Quality: " + rq)));
+                map.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title((i + " - Road Quality: " + rq)));
             }
         }
     }

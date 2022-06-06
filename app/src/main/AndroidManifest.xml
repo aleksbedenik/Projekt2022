@@ -24,7 +24,8 @@
         <activity
             android:name=".NewActivityActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".BottomNavigationActivity" />
+        <activity android:name=".BottomNavigationActivity"
+            android:screenOrientation="portrait"/>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBlGM2anX1TvBXUXu_l719uNd6PUW7lJ0A" />

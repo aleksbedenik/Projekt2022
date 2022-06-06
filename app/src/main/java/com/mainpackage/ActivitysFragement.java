@@ -50,6 +50,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -70,6 +71,8 @@ public class ActivitysFragement extends Fragment implements View.OnClickListener
     SensorManager sensorManager;
     float x = 0, y = 0, z = 0;
     int tempMax = 0;
+    int qualityX[];
+    int qualityY[];
 
     boolean timerStarted = false;
     Timer timer;
@@ -108,10 +111,19 @@ public class ActivitysFragement extends Fragment implements View.OnClickListener
         app = (ApplicationMy) getActivity().getApplication();
 
         temp = (TextView) getView().findViewById(R.id.tempLatLon);
+        //temp.setEnabled(false);
 
         sensX = (TextView) getView().findViewById(R.id.sensAccX);
         sensY = (TextView) getView().findViewById(R.id.sensAccY);
         sensZ = (TextView) getView().findViewById(R.id.sensAccZ);
+        //sensX.setEnabled(false);
+        //sensY.setEnabled(false);
+        //sensZ.setEnabled(false);
+
+        qualityX = new int[11];
+        qualityY = new int[11];
+        Arrays.fill(qualityX, 0);
+        Arrays.fill(qualityY, 0);
 
         timer_tv = (TextView) getView().findViewById(R.id.timerTV);
 
@@ -175,12 +187,28 @@ public class ActivitysFragement extends Fragment implements View.OnClickListener
         }
         @Override
         public void onSensorChanged(SensorEvent event){
-            x = event.values[0]; //X probably the best candidate to keep an eye on during road evaluation
+            x = event.values[0];
+
+            //Simple test to verify everything is working
+            //TODO: Actual algorithm to determine road quality
             if(x > tempMax){
                 tempMax = (int) x;
             }
+
             y = event.values[1];
             z = event.values[2];
+
+            int indexX = Math.abs((int) x);
+            int indexY = Math.abs((int) y);
+
+            if(indexX > 10) indexX = 10;
+            if(indexY > 10) indexY = 10;
+
+            if(timerStarted){
+                qualityX[indexX]++;
+                qualityY[indexY]++;
+            }
+
 
             if(timerStarted){
                 sensX.setText(String.valueOf(x));
@@ -258,6 +286,9 @@ public class ActivitysFragement extends Fragment implements View.OnClickListener
 
                     startTimer();
                 }else{
+                    int maxX = 0;
+                    int maxY = 0;
+
                     timerStarted = false;
                     start.setText("Začni sledenje");
 
@@ -265,6 +296,18 @@ public class ActivitysFragement extends Fragment implements View.OnClickListener
                     app.endLon = lon;
                     entry.setEndLat(lat);
                     entry.setEndLon(lon);
+
+                    for(int i = 0; i < 11; i++){
+                        if(maxX < qualityX[i]){
+                            maxX = i;
+                        }
+
+                        if(maxY > qualityY[i]){
+                            maxY = i;
+                        }
+                    }
+
+                    tempMax = (maxX + maxY);
 
                     app.roadQuality = tempMax;
                     entry.setRoadQuality(tempMax);

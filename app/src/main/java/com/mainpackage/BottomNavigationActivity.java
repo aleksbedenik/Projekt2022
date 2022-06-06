@@ -31,7 +31,7 @@ public class BottomNavigationActivity extends AppCompatActivity {
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(false);
         actionBar.setDisplayShowHomeEnabled(false);
-        actionBar.setTitle("Aktivnosti");
+        actionBar.setTitle("Sledenje");
         actionBar.show();
     }
     public void setNavigationBarMojProfil(){
@@ -47,7 +47,7 @@ public class BottomNavigationActivity extends AppCompatActivity {
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(false);
         actionBar.setDisplayShowHomeEnabled(false);
-        actionBar.setTitle("Druge Aplikacije");
+        actionBar.setTitle("Zemljevid");
         actionBar.show();
     }
     private BottomNavigationView.OnNavigationItemSelectedListener navListener =
