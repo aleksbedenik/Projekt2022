@@ -38,7 +38,7 @@ public class OtherAppsFragement extends Fragment implements OnMapReadyCallback {
 
     TextView debug;
 
-    String Lat = "", Lon = "";
+    String Lat = "", Lon = "", LatEnd = "", LonEnd = "";
     int rq; // road quality
 
     @Nullable
@@ -123,7 +123,7 @@ public class OtherAppsFragement extends Fragment implements OnMapReadyCallback {
         //if(app.startLat != "default" && app.startLon != "default"){
         //    map.addMarker(new MarkerOptions().position(new LatLng(Double.valueOf(app.startLat), Double.valueOf(app.startLon))).title("Road Quality: " + String.valueOf(app.roadQuality)));
         //}
-        double latitude, longitude;
+        double latitude, longitude, latitudeEnd, longitudeEnd;
 
         //Toast.makeText(getActivity(), "Number of saved roads: " + String.valueOf(entries.size()), Toast.LENGTH_SHORT).show();
         //debug.setText(String.valueOf(entries.size()));
@@ -137,6 +137,8 @@ public class OtherAppsFragement extends Fragment implements OnMapReadyCallback {
 
                 Lat = entries.get(i).getStartLat();
                 Lon = entries.get(i).getStartLon();
+                LatEnd = entries.get(i).getEndLat();
+                LonEnd = entries.get(i).getEndLon();
                 rq = entries.get(i).getRoadQuality();
 
 
@@ -146,8 +148,11 @@ public class OtherAppsFragement extends Fragment implements OnMapReadyCallback {
 
                 latitude = Double.valueOf(Lat);
                 longitude = Double.valueOf(Lon);
+                latitudeEnd = Double.valueOf(LatEnd);
+                longitudeEnd = Double.valueOf(LonEnd);
 
-                map.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title((i + " - Road Quality: " + rq)));
+                map.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title(("Start of path " + i + " - Road Quality: " + rq)));
+                map.addMarker(new MarkerOptions().position(new LatLng(latitudeEnd, longitudeEnd)).title(("End of path " + i + " - Road Quality: " + rq)));
             }
         }
     }
